@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.20.0
+
+- **Plugin UI localization.** The plugin's own interface — section titles,
+  buttons, settings labels, empty-state messages, and the Status/Advanced
+  diagnostics readout — is now translatable. A new **Language** setting
+  (Quick Access → EnhancedGV) offers Automatic (follows your Steam client,
+  same detection the store-content language already used), English, and
+  Português (Brasil). Any text missing from a translation falls back to
+  English. This is independent of the existing store-content language,
+  which still follows your Steam client automatically.
+- **CI test-build downloads install directly.** The workflow artifact
+  attached to non-release builds (e.g. `main` pushes) used to download as a
+  zip containing another zip containing the plugin, which Decky's Install
+  Plugin from ZIP rejected with `No plugin.json found in plugin ZIP` until
+  manually extracted. The artifact now zips the plugin folder directly, the
+  same layout a release uses. Published releases were never affected.
+
 ## v0.19.2
 
 > **Hotfix.** Store content stopped loading for many Steam games, showing
