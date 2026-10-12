@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.21.0
+
+- **Update history now works for Nintendo Switch games.** Non-Steam Switch
+  titles (matched via Hasheous/IGDB) now pull real update announcements from
+  Nintendo's own eShop — full text, not just a version number — instead of
+  always showing nothing. Only triggers for a game actually recognized as
+  Switch; other emulated platforms (SNES, Genesis, PS1, …) are unaffected.
+  Nintendo has no public API for this, so coverage isn't guaranteed for
+  every title, and one story's content can be unavailable by region —
+  that's Nintendo's own licensing, not a plugin bug.
+- **Update history articles are D-pad scrollable again.** Long Switch (and
+  Steam) news items now use the same scroll mechanism as the description and
+  full-review views; previously, anything taller than the dialog had no way
+  to scroll with a controller.
+- **"View online" replaces "View on Steam".** The button opened whatever
+  link the item carried regardless of source, so it said "Steam" even for a
+  Nintendo article. It also now closes the dialog before opening the link,
+  instead of leaving it sitting on top of the page that just opened behind it.
+- **Reviews and Steam Deck compatibility are localized.** The All/Recent/
+  "in {language}" review scores, the Steam Deck badge and its compatibility
+  notes, and each review's "{language} Reviews" label now follow your
+  plugin language setting (or Steam's own localized text, where Steam
+  actually provides one) instead of always showing in English. Fixed two
+  caching bugs found along the way: the review summary could get stuck in
+  whichever language was fetched first, and the Steam Deck note lookup
+  never matched because of an unstripped "#" in Steam's own reply.
+- **Release date and genre/platform tags are localized for non-Steam
+  games**, and each review now shows the date it was written.
+
 ## v0.20.1
 
 - **A store-details hiccup no longer sticks for the rest of the session.**
