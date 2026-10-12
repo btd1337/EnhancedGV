@@ -2,6 +2,7 @@ import { ModalRoot } from "@decky/ui";
 import { FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 import type { ReviewItem } from "../types";
 import { FocusableBlocks } from "./FocusableBlocks";
+import { useTranslation } from "../i18n";
 
 // Escape review text (plain, user-written — treat as untrusted) so it renders as
 // literal text, then turn newlines into <br>. FocusableBlocks makes the result
@@ -22,6 +23,7 @@ export function ReviewModal({
   review: ReviewItem;
   closeModal?: () => void;
 }) {
+  const { t } = useTranslation();
   const html = textToSafeHtml(review.text);
   return (
     <ModalRoot onCancel={closeModal} onEscKeypress={closeModal} bAllowFullSize>
@@ -43,18 +45,18 @@ export function ReviewModal({
             <FaThumbsDown size={13} color="#c15b58" />
           )}
           <span style={{ fontWeight: 600 }}>
-            {review.voted_up ? "Recommended" : "Not recommended"}
+            {review.voted_up ? t("reviews.recommended") : t("reviews.notRecommended")}
           </span>
           <span>·</span>
-          <span>{review.playtime_hours}h played</span>
-          {review.steam_deck && <span>· 🎮 on Deck</span>}
-          {review.early_access && <span>· Early Access</span>}
+          <span>{t("reviews.hoursPlayed", { hours: review.playtime_hours })}</span>
+          {review.steam_deck && <span>· {t("reviews.onDeck")}</span>}
+          {review.early_access && <span>· {t("reviews.earlyAccess")}</span>}
         </div>
         {html ? (
           <FocusableBlocks html={html} blockClass="ssp-review" targetPerStop={6} />
         ) : (
           <div style={{ opacity: 0.6, fontSize: 13 }}>
-            This review has no written text.
+            {t("reviews.noText")}
           </div>
         )}
       </div>

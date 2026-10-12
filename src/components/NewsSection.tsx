@@ -7,6 +7,7 @@ import {
 import type { News, NewsItem } from "../types";
 import { openExternal } from "../nav";
 import { FOCUS_SCROLL_MARGIN, CENTER_ON_FOCUS } from "../focus";
+import { useTranslation } from "../i18n";
 
 function fmtDate(unix: number): string {
   try {
@@ -33,6 +34,7 @@ function NewsModal({
   item: NewsItem;
   closeModal?: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <ModalRoot onCancel={closeModal} onEscKeypress={closeModal}>
       <style>{NEWS_HTML_STYLE}</style>
@@ -55,7 +57,7 @@ function NewsModal({
           <DialogButton
             onClick={() => openExternal(item.url)}
           >
-            View on Steam
+            {t("news.viewOnSteam")}
           </DialogButton>
         )}
       </div>
@@ -64,8 +66,9 @@ function NewsModal({
 }
 
 export function NewsSection({ news }: { news: News }) {
+  const { t } = useTranslation();
   if (!news || !news.ok || news.items.length === 0) {
-    return <div style={{ opacity: 0.6, fontSize: 13 }}>No recent updates.</div>;
+    return <div style={{ opacity: 0.6, fontSize: 13 }}>{t("news.none")}</div>;
   }
 
   return (
