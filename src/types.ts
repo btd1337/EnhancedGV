@@ -41,6 +41,12 @@ export interface Requirements {
 export interface AppDetails {
   ok: boolean;
   error?: string;
+  // Set by the backend when `ok` is false and the failure is transient (empty/
+  // unreadable reply, rate limiting, timeout, transport error) rather than a
+  // genuine "Steam has nothing for this app" (success:false). Drives whether
+  // the frontend retries soon (see useAppData's failureCache) or pins the
+  // result for the rest of the session.
+  transient?: boolean;
   name: string;
   type: string;
   short_description: string;

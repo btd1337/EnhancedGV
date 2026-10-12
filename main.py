@@ -1697,12 +1697,15 @@ class Plugin:
                 return result
             except urllib.error.HTTPError as exc:
                 decky.logger.error(f"{kind} HTTP {exc.code} for {key}")
-                res = {"ok": False, "error": f"HTTP {exc.code}"}
+                # A transport-layer failure (rate limiting, a transient 5xx, …),
+                # never Steam's catalog saying "no such app" — always worth
+                # retrying soon rather than pinning for the session. See #11.
+                res = {"ok": False, "transient": True, "error": f"HTTP {exc.code}"}
                 _write_negative(kind, key, res)
                 return res
             except Exception as exc:
                 decky.logger.error(f"{kind} fetch failed for {key}: {exc}")
-                res = {"ok": False, "error": str(exc)}
+                res = {"ok": False, "transient": True, "error": str(exc)}
                 _write_negative(kind, key, res)
                 return res
 
@@ -1735,8 +1738,15 @@ class Plugin:
             # Three different failures, which v0.19.1 reported with one message.
             # appdetails has been known to answer with an empty body when it is
             # throttling; anything that is not a non-empty object lands here.
+            #
+            # Each carries "transient": whether retrying soon is likely to help
+            # (empty/garbled reply, no matching entry, no data despite
+            # success:true — all plausibly rate-limiting or a one-off hiccup) vs
+            # Steam genuinely saying this app has no store page (success:false),
+            # which won't change on retry and should stay pinned instead of
+            # being retried every revisit. See useAppData's failureCache (#11).
             if not isinstance(raw, dict) or not raw:
-                return {"ok": False,
+                return {"ok": False, "transient": True,
                         "error": "Steam sent an empty or unreadable reply "
                                  "(often rate limiting); try again shortly"}
             env = _appdetails_envelope(raw, appid)
@@ -1747,14 +1757,15 @@ class Plugin:
                 decky.logger.warning(
                     f"appdetails {appid}: no entry matched; reply keyed "
                     f"{[str(k)[:16] for k in list(raw)[:3]]}")
-                return {"ok": False, "error": "store returned no entry for this app"}
+                return {"ok": False, "transient": True,
+                        "error": "store returned no entry for this app"}
             # isinstance, not a key check: an envelope can carry success:true with
             # data null or [], and _normalize_appdetails raises on either. Only
             # say success=false when Steam actually did.
             if not env.get("success"):
                 return {"ok": False, "error": "no store data (success=false)"}
             if not isinstance(env.get("data"), dict):
-                return {"ok": False, "error": "no store data"}
+                return {"ok": False, "transient": True, "error": "no store data"}
             out = _normalize_appdetails(env["data"])
             out["ok"] = True
             return out
@@ -1979,7 +1990,9 @@ class Plugin:
         def _coerce(section):
             if isinstance(section, BaseException):
                 decky.logger.error(f"get_all section failed: {section}")
-                return {"ok": False, "error": str(section)}
+                # An uncaught crash, not a deliberate "no data" answer — worth
+                # retrying soon rather than pinning for the session. See #11.
+                return {"ok": False, "transient": True, "error": str(section)}
             return section
 
         return {

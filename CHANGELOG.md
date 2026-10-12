@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.20.1
+
+- **A store-details hiccup no longer sticks for the rest of the session.**
+  `get_all` reports overall success even when only its appdetails section
+  failed (so a bad reviews/news/deck fetch can't sink the rest), but the
+  frontend was caching that shape as a permanent success regardless. A
+  transient appdetails failure (an empty or rate-limited reply, a timeout, an
+  HTTP error) showed "Store content unavailable" until Steam restarted, the
+  plugin was reinstalled, or the cache was cleared by hand. Navigating back to
+  the game after a minute now retries instead of replaying the stale failure.
+  A genuine "Steam has no store page for this app" still stays put for the
+  session, unchanged. Applies to non-Steam (Hasheous) games too.
+
 ## v0.20.0
 
 - **Plugin UI localization.** The plugin's own interface — section titles,
